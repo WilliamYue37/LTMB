@@ -122,9 +122,12 @@ class HallwayEnv(MiniGridEnv):
      
         return obs['image'], reward, terminated, truncated, info
     
-if __name__ == "__main__":
+def main():
     env = HallwayEnv(length=5, screen_size=800, render_mode="human")
 
     # enable manual control for testing
     manual_control = ManualControl(env)
     manual_control.start()
+
+if __name__ == "__main__":
+    main()

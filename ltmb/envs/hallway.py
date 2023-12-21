@@ -120,7 +120,7 @@ class HallwayEnv(MiniGridEnv):
                 reward = 0
             terminated = True
      
-        return obs['image'], reward, terminated, truncated, info
+        return obs, reward, terminated, truncated, info
     
 def main():
     env = HallwayEnv(length=5, screen_size=800, render_mode="human")

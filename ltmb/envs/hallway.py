@@ -116,8 +116,10 @@ class HallwayEnv(MiniGridEnv):
         if isinstance(self.grid.get(*self.agent_pos), Door):
             if tuple(self.agent_pos) == self.success_pos:
                 reward = self._reward()
+                info['success'] = True
             else:
                 reward = 0
+                info['success'] = False
             terminated = True
      
         return obs, reward, terminated, truncated, info

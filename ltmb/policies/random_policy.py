@@ -1,7 +1,6 @@
-class RandomPolicy:
-    def __init__(self, env):
-        self.env = env
+import random
 
+class RandomPolicy:
     def select_action(self, obs):
         # Randomly select an action from the environment's action space
-        return self.env.action_space.sample()
+        return random.randint(0, 6)

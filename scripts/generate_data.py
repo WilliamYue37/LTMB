@@ -2,15 +2,33 @@ import gymnasium as gym
 import pickle
 import argparse
 import ltmb
-from ltmb.policies import ExpertHallwayPolicy
+import random
+from ltmb.policies import Policy, ExpertHallwayPolicy
+from typing import Type
 
-def collect_trajectories(env_name, seed, policy, num_trajectories):
-    env = gym.make(env_name)
+def record_video(env_name: str, expert: Type[Policy], filename: str, length: int):
+    policy = expert()
+    env = gym.make(env_name, render_mode='rgb_array', length=length)
+    env = gym.wrappers.RecordVideo(env, filename + '_recording')
+    obs, info = env.reset(seed=random.randint(0, 10**9))
+    done = False
+
+    while not done:
+        action = policy.select_action(obs)
+        obs, reward, terminated, truncated, info = env.step(action)
+        done = terminated or truncated
+
+    assert info['success']
+    env.close()
+
+def collect_trajectories(env_name: str, expert: Type[Policy], num_trajectories: int, length: int):
+    env = gym.make(env_name, length=length)
     trajectories = []
     avg_len, max_len = 0, 0
 
     for _ in range(num_trajectories):
-        obs, info = env.reset(seed=seed)
+        policy = expert() # policy is not markovian and must be reinitialized for each trajectory
+        obs, info = env.reset(seed=random.randint(0, 10**9))
         done = False
         trajectory = []
 
@@ -20,31 +38,34 @@ def collect_trajectories(env_name, seed, policy, num_trajectories):
             obs, reward, terminated, truncated, info = env.step(action)
             done = terminated or truncated
 
-        #assert info['success']
+        assert info['success']
         trajectories.append(trajectory)
         avg_len += len(trajectory)
         max_len = max(max_len, len(trajectory))
 
+    env.close()
     return trajectories, avg_len / num_trajectories, max_len
-
-def save_trajectories(trajectories, filename):
-    with open(filename, 'wb') as f:
-        pickle.dump(trajectories, f)
 
 def main():
     parser = argparse.ArgumentParser(description='Collect and save trajectories from a Gym environment.')
-    parser.add_argument('--filename', type=str, required=True, help='Output file name for saved trajectories.')
+    parser.add_argument('--filename', type=str, required=True, help='Output file name for saved trajectories. (*.pkl)')
     parser.add_argument('--runs', type=int, default=2, help='Number of trajectories to collect.')
-    parser.add_argument('--env', type=str, required=True, help='Gym environment name.')
+    parser.add_argument('--env', type=str, required=True, choices=['LTMB-Hallway-v0'], help='Gym environment name.')
     parser.add_argument('--seed', type=int, default=0, help='Random seed.')
+    parser.add_argument('--length', type=int, default=5, help='Length of the hallway.')
+    parser.add_argument('--record', action='store_true', help='Record a video of the expert policy.')
     args = parser.parse_args()
 
-    policy = ExpertHallwayPolicy()
-    trajectories, avg_len, max_len = collect_trajectories(args.env, args.seed, policy, args.runs)
+    random.seed(args.seed)
+
+    trajectories, avg_len, max_len = collect_trajectories(args.env, ExpertHallwayPolicy, args.runs, args.length)
     print("Average length: ", avg_len)
     print("Max length: ", max_len)
-    with open(args.filename, 'wb') as f:
-        pickle.dump(trajectories, f)
+    # with open(args.filename, 'wb') as f:
+    #     pickle.dump(trajectories, f)
+    
+    if args.record:
+        record_video(args.env, ExpertHallwayPolicy, args.filename, args.length)
 
 if __name__ == '__main__':
     main()

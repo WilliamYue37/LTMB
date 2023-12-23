@@ -6,5 +6,5 @@ class Policy(ABC):
         pass
 
     @abstractmethod
-    def get_memory_associations(self, state, action, reward, next_state):
+    def get_memory_associations(self):
         pass

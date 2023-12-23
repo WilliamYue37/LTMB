@@ -39,7 +39,7 @@ def collect_trajectories(env_name: str, expert: Type[Policy], num_trajectories: 
             done = terminated or truncated
 
         assert info['success']
-        trajectories.append(trajectory)
+        trajectories.append((trajectory, policy.get_memory_associations()))
         avg_len += len(trajectory)
         max_len = max(max_len, len(trajectory))
 
@@ -52,7 +52,7 @@ def main():
     parser.add_argument('--runs', type=int, default=2, help='Number of trajectories to collect.')
     parser.add_argument('--env', type=str, required=True, choices=['LTMB-Hallway-v0'], help='Gym environment name.')
     parser.add_argument('--seed', type=int, default=0, help='Random seed.')
-    parser.add_argument('--length', type=int, default=5, help='Length of the hallway.')
+    parser.add_argument('--length', type=int, default=10, help='Length of the hallway.')
     parser.add_argument('--record', action='store_true', help='Record a video of the expert policy.')
     args = parser.parse_args()
 
@@ -61,8 +61,8 @@ def main():
     trajectories, avg_len, max_len = collect_trajectories(args.env, ExpertHallwayPolicy, args.runs, args.length)
     print("Average length: ", avg_len)
     print("Max length: ", max_len)
-    # with open(args.filename, 'wb') as f:
-    #     pickle.dump(trajectories, f)
+    with open(args.filename, 'wb') as f:
+        pickle.dump(trajectories, f)
     
     if args.record:
         record_video(args.env, ExpertHallwayPolicy, args.filename, args.length)

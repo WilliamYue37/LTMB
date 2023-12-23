@@ -44,7 +44,7 @@ class ExpertHallwayPolicy(Policy):
 
             # add memory association if we are next to a door
             if IDX_TO_OBJECT[obs[2, 6, OBJECT_IDX]] == 'door' or IDX_TO_OBJECT[obs[4, 6, OBJECT_IDX]] == 'door':
-                self.memory_associations.append((1, self.timestep))
+                self.memory_associations.append((2 * self.timestep, 2 * 1)) # multiply by 2 because observations are at even indicies and actions are at odd indicies
         
         self.timestep += 1
         return action

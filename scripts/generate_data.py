@@ -50,9 +50,9 @@ def main():
     parser = argparse.ArgumentParser(description='Collect and save trajectories from a Gym environment.')
     parser.add_argument('--filename', type=str, required=True, help='Output file name for saved trajectories. (*.pkl)')
     parser.add_argument('--runs', type=int, default=2, help='Number of trajectories to collect.')
-    parser.add_argument('--env', type=str, required=True, choices=['LTMB-Hallway-v0'], help='Gym environment name.')
+    parser.add_argument('--env', type=str, required=True, choices=['LTMB-Hallway-v0, LTMB-Mimic-v0'], help='Gym environment name.')
     parser.add_argument('--seed', type=int, default=0, help='Random seed.')
-    parser.add_argument('--length', type=int, default=10, help='Length of the hallway.')
+    parser.add_argument('--length', type=int, default=10, help='Length of the task.')
     parser.add_argument('--record', action='store_true', help='Record a video of the expert policy.')
     args = parser.parse_args()
 

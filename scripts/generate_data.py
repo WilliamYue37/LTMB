@@ -3,7 +3,7 @@ import pickle
 import argparse
 import ltmb
 import random
-from ltmb.policies import Policy, ExpertHallwayPolicy
+from ltmb.policies import Policy, ExpertHallwayPolicy, ExpertMimicPolicy, ExpertCountingPolicy
 from typing import Type
 
 def record_video(env_name: str, expert: Type[Policy], filename: str, length: int):
@@ -50,7 +50,7 @@ def main():
     parser = argparse.ArgumentParser(description='Collect and save trajectories from a Gym environment.')
     parser.add_argument('--filename', type=str, required=True, help='Output file name for saved trajectories. (*.pkl)')
     parser.add_argument('--runs', type=int, default=2, help='Number of trajectories to collect.')
-    parser.add_argument('--env', type=str, required=True, choices=['LTMB-Hallway-v0, LTMB-Mimic-v0'], help='Gym environment name.')
+    parser.add_argument('--env', type=str, required=True, choices=['LTMB-Hallway-v0', 'LTMB-Mimic-v0', 'LTMB-Counting-v0'], help='Gym environment name.')
     parser.add_argument('--seed', type=int, default=0, help='Random seed.')
     parser.add_argument('--length', type=int, default=10, help='Length of the task.')
     parser.add_argument('--record', action='store_true', help='Record a video of the expert policy.')
@@ -58,14 +58,23 @@ def main():
 
     random.seed(args.seed)
 
-    trajectories, avg_len, max_len = collect_trajectories(args.env, ExpertHallwayPolicy, args.runs, args.length)
+    expert = None
+    if args.env == 'LTMB-Hallway-v0':
+        expert = ExpertHallwayPolicy
+    elif args.env == 'LTMB-Mimic-v0':
+        expert = ExpertMimicPolicy
+    elif args.env == 'LTMB-Counting-v0':
+        expert = ExpertCountingPolicy
+    assert expert is not None
+
+    trajectories, avg_len, max_len = collect_trajectories(args.env, expert, args.runs, args.length)
     print("Average length: ", avg_len)
     print("Max length: ", max_len)
     with open(args.filename, 'wb') as f:
         pickle.dump(trajectories, f)
     
     if args.record:
-        record_video(args.env, ExpertHallwayPolicy, args.filename, args.length)
+        record_video(args.env, expert, args.filename, args.length)
 
 if __name__ == '__main__':
     main()

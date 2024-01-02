@@ -7,7 +7,7 @@ OBJECT_IDX = 0
 COLOR_IDX = 1
 STATE = 2
 
-class ExpertMimicPolicy(Policy):
+class ExpertCountingPolicy(Policy):
     def __init__(self):
         self.timestep = 0
         self.memory_associations = []

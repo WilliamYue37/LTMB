@@ -31,10 +31,10 @@ class MimicEnv(MiniGridEnv):
 
     @staticmethod
     def _gen_mission():
-        return 'Enter the hallway with the same object as the one in the start room'
+        return 'Perform the same action for each key color. Do not perform the same action for any other color object.'
 
     def _gen_grid(self, width, height):
-        self.mission = 'Enter the hallway with the same object as the one in the start room'
+        self.mission = 'Perform the same action for each key color. Do not perform the same action for any other color object.'
         self.grid = Grid(width, height)
 
         # Fix the player's start position and orientation

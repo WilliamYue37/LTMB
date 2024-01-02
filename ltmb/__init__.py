@@ -9,3 +9,8 @@ register(
      id='LTMB-Mimic-v0',
      entry_point="ltmb.envs:MimicEnv",
 )
+
+register(
+     id='LTMB-Counting-v0',
+     entry_point="ltmb.envs:CountingEnv",
+)

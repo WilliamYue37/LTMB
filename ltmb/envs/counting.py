@@ -13,10 +13,19 @@ from minigrid.minigrid_env import MiniGridEnv
 
 class CountingEnv(MiniGridEnv):
     def __init__(self, length=5, test_freq = 0.3, empty_freq = 0.1, screen_size=640, **kwargs):
-        max_steps = 7 * length # length specifies the number of rooms
+        if length < 1:
+            raise ValueError('length must be greater than 0')
+        if test_freq < 0 or test_freq > 1:
+            raise ValueError('test_freq must be between 0 and 1')
+        if empty_freq < 0 or empty_freq > 1:
+            raise ValueError('empty_freq must be between 0 and 1')
+
+        self.length = length # number of rooms
+        max_steps = 7 * length
         self.object_count = defaultdict(int) # count of objects
         self.test_freq = test_freq # frequency of test rooms
         self.empty_freq = empty_freq # frequency of empty object cells
+        self.rooms_visited = 1 # number of rooms visited
 
         mission_space = MissionSpace(mission_func=self._gen_mission)
         super().__init__(
@@ -45,8 +54,9 @@ class CountingEnv(MiniGridEnv):
         for x, y in [(1, 1), (3, 1), (1, 2), (3, 2), (1, 3), (3, 3)]:
             object = self._rand_elem([Ball, Key, Box])
             color = self._rand_elem(COLOR_NAMES)
-            if self._rand_float(0, 1) > self.empty_freq: self.grid.set(x, y, object(color))
-            self.object_count[(object, color)] += 1
+            if self._rand_float(0, 1) > self.empty_freq: 
+                self.grid.set(x, y, object(color))
+                self.object_count[(object, color)] += 1
     
     def _gen_test_room(self):
         # Fix the player's start position and orientation
@@ -85,6 +95,7 @@ class CountingEnv(MiniGridEnv):
 
     def reset(self, **kwargs):
         self.object_count = defaultdict(int)
+        self.rooms_visited = 1
         return super().reset(**kwargs)
 
     def step(self, action):
@@ -93,7 +104,7 @@ class CountingEnv(MiniGridEnv):
 
         obs, reward, terminated, truncated, info = super().step(action)
 
-        if isinstance(self.grid.get(*self.agent_pos), Door):
+        if self.agent_pos[1] == 0: # reached a door
             # verify the results of a test room
             if self.agent_pos != (2, 0): # previous room was a test room
                 if self.correct_door != self.agent_pos: # wrong door
@@ -101,6 +112,12 @@ class CountingEnv(MiniGridEnv):
                     info['success'] = False
                     terminated = True
                     return obs, reward, terminated, truncated, info
+                
+            if self.rooms_visited == self.length: # visited all the rooms
+                terminated = True
+                reward = 1
+                info['success'] = True
+                return obs, reward, terminated, truncated, info
 
             # Generate a new room
             self._clear_room()
@@ -108,12 +125,14 @@ class CountingEnv(MiniGridEnv):
                 self._gen_test_room()
             else: # generate normal room
                 self._gen_normal_room()
+
+            self.rooms_visited += 1
         
-        if truncated:
+        if truncated or terminated:
             reward = 1
             info['success'] = True
             
-        return obs, reward, terminated, truncated, info
+        return self.gen_obs(), reward, terminated, truncated, info
     
 def main():
     env = CountingEnv(length=10, screen_size=800, render_mode="human")

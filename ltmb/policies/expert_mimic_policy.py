@@ -19,6 +19,7 @@ class ExpertMimicPolicy(Policy):
         obs = obs['image']
         action = None
         
+        self.memory_associations.append((2 * self.timestep, 2 * self.timestep)) # we need to pay attention to the current observation
         object, color = IDX_TO_OBJECT[obs[3, 3, OBJECT_IDX]], IDX_TO_COLOR[obs[3, 3, COLOR_IDX]]
         if object == 'key':
             if color not in self.color_to_timestep:

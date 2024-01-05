@@ -26,6 +26,7 @@ class ExpertCountingPolicy(Policy):
         obs = obs['image']
         action = None
 
+        self.memory_associations.append((2 * self.timestep, 2 * self.timestep)) # we need to pay attention to the current observation
         if self.action_queue.qsize() > 0:
             action = self.action_queue.get()
         elif self._get_object(obs, 3, 3) == 'door': # we are in a normal room

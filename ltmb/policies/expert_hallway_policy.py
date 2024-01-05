@@ -20,6 +20,7 @@ class ExpertHallwayPolicy(Policy):
         obs = obs['image']
         action = None
         
+        self.memory_associations.append((2 * self.timestep, 2 * self.timestep)) # we need to pay attention to the current observation
         if self.action_queue.qsize() > 0:
             action = self.action_queue.get()
         elif self.timestep == 0: # observe starting room at start of episode

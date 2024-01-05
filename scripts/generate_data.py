@@ -6,9 +6,9 @@ import random
 from ltmb.policies import Policy, ExpertHallwayPolicy, ExpertMimicPolicy, ExpertCountingPolicy
 from typing import Type
 
-def record_video(env_name: str, expert: Type[Policy], filename: str, length: int):
+def record_video(env_name: str, expert: Type[Policy], filename: str, options: dict = {}):
     policy = expert()
-    env = gym.make(env_name, render_mode='rgb_array', length=length)
+    env = gym.make(env_name, render_mode='rgb_array', **options)
     env = gym.wrappers.RecordVideo(env, filename + '_recording')
     obs, info = env.reset(seed=random.randint(0, 10**9))
     done = False
@@ -21,8 +21,8 @@ def record_video(env_name: str, expert: Type[Policy], filename: str, length: int
     assert info['success']
     env.close()
 
-def collect_trajectories(env_name: str, expert: Type[Policy], num_trajectories: int, length: int):
-    env = gym.make(env_name, length=length)
+def collect_trajectories(env_name: str, expert: Type[Policy], num_trajectories: int, options: dict = {}):
+    env = gym.make(env_name, **options)
     trajectories = []
     avg_len, max_len = 0, 0
 
@@ -53,11 +53,13 @@ def main():
     parser.add_argument('--env', type=str, required=True, choices=['LTMB-Hallway-v0', 'LTMB-Mimic-v0', 'LTMB-Counting-v0'], help='Gym environment name.')
     parser.add_argument('--seed', type=int, default=0, help='Random seed.')
     parser.add_argument('--length', type=int, default=10, help='Length of the task.')
+    parser.add_argument('--test_freq', type=float, default=0.3, help='Frequency of test rooms for Counting task.')
     parser.add_argument('--record', action='store_true', help='Record a video of the expert policy.')
     args = parser.parse_args()
 
     random.seed(args.seed)
 
+    options = {'length': args.length}
     expert = None
     if args.env == 'LTMB-Hallway-v0':
         expert = ExpertHallwayPolicy
@@ -65,16 +67,17 @@ def main():
         expert = ExpertMimicPolicy
     elif args.env == 'LTMB-Counting-v0':
         expert = ExpertCountingPolicy
+        options['test_freq'] = args.test_freq
     assert expert is not None
 
-    trajectories, avg_len, max_len = collect_trajectories(args.env, expert, args.runs, args.length)
+    trajectories, avg_len, max_len = collect_trajectories(args.env, expert, args.runs, options)
     print("Average length: ", avg_len)
     print("Max length: ", max_len)
     with open(args.filename, 'wb') as f:
         pickle.dump(trajectories, f)
     
     if args.record:
-        record_video(args.env, expert, args.filename, args.length)
+        record_video(args.env, expert, args.filename, options)
 
 if __name__ == '__main__':
     main()

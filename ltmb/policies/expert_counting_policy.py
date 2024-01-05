@@ -52,8 +52,6 @@ class ExpertCountingPolicy(Policy):
                 future_action_list = [Actions.forward, Actions.left, Actions.forward, Actions.forward, Actions.toggle, Actions.forward]
                 for a in future_action_list:
                     self.action_queue.put(a)
-        else:
-            pass
 
         assert action is not None
 

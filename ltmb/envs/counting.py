@@ -129,8 +129,8 @@ class CountingEnv(MiniGridEnv):
             self.rooms_visited += 1
         
         if truncated or terminated:
-            reward = 1
-            info['success'] = True
+            reward = 1 if self.rooms_visited == self.length else 0
+            info['success'] = True if self.rooms_visited == self.length else False
             
         return self.gen_obs(), reward, terminated, truncated, info
     

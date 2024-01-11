@@ -12,7 +12,7 @@ from minigrid.manual_control import ManualControl
 from minigrid.minigrid_env import MiniGridEnv
 
 class CountingEnv(MiniGridEnv):
-    def __init__(self, length=5, test_freq = 0.3, empty_freq = 0.1, screen_size=640, **kwargs):
+    def __init__(self, length=5, test_freq = 0.3, empty_freq = 0.1, tile_size=12, screen_size=640, **kwargs):
         if length < 1:
             raise ValueError('length must be greater than 0')
         if test_freq < 0 or test_freq > 1:
@@ -26,6 +26,7 @@ class CountingEnv(MiniGridEnv):
         self.test_freq = test_freq # frequency of test rooms
         self.empty_freq = empty_freq # frequency of empty object cells
         self.rooms_visited = 1 # number of rooms visited
+        self.tile_size = tile_size # size of tiles in pixels
 
         mission_space = MissionSpace(mission_func=self._gen_mission)
         super().__init__(
@@ -35,6 +36,7 @@ class CountingEnv(MiniGridEnv):
             see_through_walls=True,
             max_steps=max_steps,
             screen_size=screen_size,
+            tile_size=tile_size,
             **kwargs,
         )
 
@@ -133,6 +135,9 @@ class CountingEnv(MiniGridEnv):
             info['success'] = True if self.rooms_visited == self.length else False
             
         return self.gen_obs(), reward, terminated, truncated, info
+    
+    def get_obs_render(self):
+        return self.get_pov_render(tile_size=self.tile_size)
     
 def main():
     env = CountingEnv(length=10, screen_size=800, render_mode="human")

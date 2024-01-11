@@ -11,7 +11,7 @@ from minigrid.manual_control import ManualControl
 from minigrid.minigrid_env import MiniGridEnv
 
 class HallwayEnv(MiniGridEnv):
-    def __init__(self, length=5, max_steps=16, screen_size=640, **kwargs):
+    def __init__(self, length=5, max_steps=16, tile_size=12, screen_size=640, **kwargs):
         self.length = length # number of vertical hallways
         self.size = 4 * length + 5
         max_steps = max(max_steps, self.size + 20)
@@ -24,6 +24,7 @@ class HallwayEnv(MiniGridEnv):
             see_through_walls=True,
             max_steps=max_steps,
             screen_size=screen_size,
+            tile_size=tile_size,
             **kwargs,
         )
 
@@ -123,6 +124,9 @@ class HallwayEnv(MiniGridEnv):
             terminated = True
      
         return obs, reward, terminated, truncated, info
+    
+    def get_obs_render(self):
+        return self.get_pov_render(tile_size=self.tile_size)
     
 def main():
     env = HallwayEnv(length=5, screen_size=800, render_mode="human")

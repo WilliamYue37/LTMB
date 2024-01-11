@@ -34,7 +34,7 @@ def collect_trajectories(env_name: str, expert: Type[Policy], num_trajectories: 
 
         while not done:
             action = policy.select_action(obs)
-            trajectory.append((obs, action))
+            trajectory.append((env.get_obs_render(), action))
             obs, reward, terminated, truncated, info = env.step(action)
             done = terminated or truncated
 

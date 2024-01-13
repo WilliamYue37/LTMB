@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 
 from minigrid.core.actions import Actions
-from minigrid.core.constants import COLOR_NAMES
+from minigrid.core.constants import COLOR_NAMES, TILE_PIXELS
 from minigrid.core.grid import Grid
 from minigrid.core.mission import MissionSpace
 from minigrid.core.world_object import Ball, Key, Wall, Door, Box
@@ -30,7 +30,7 @@ class HallwayEnv(MiniGridEnv):
 
     @staticmethod
     def _gen_mission():
-        return 'Enter the hallway with the same object as the one in the start room'
+        return 'Enter the hallway that features an identical object to the one found in the start room.'
     
     def _rand_obj(self):
         """Randomly generate an object that is not the target object and color"""
@@ -43,7 +43,7 @@ class HallwayEnv(MiniGridEnv):
         return obj(color)
 
     def _gen_grid(self, width, height):
-        self.mission = 'Enter the hallway with the same object as the one in the start room'
+        self.mission = 'Enter the hallway that features an identical object to the one found in the start room.'
         self.grid = Grid(width, height)
 
         # choose the target object and color
@@ -129,7 +129,7 @@ class HallwayEnv(MiniGridEnv):
         return self.get_pov_render(tile_size=self.tile_size)
     
 def main():
-    env = HallwayEnv(length=5, screen_size=800, render_mode="human")
+    env = HallwayEnv(length=5, tile_size=TILE_PIXELS, screen_size=1324, render_mode="human")
 
     # enable manual control for testing
     manual_control = ManualControl(env)

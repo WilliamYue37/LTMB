@@ -4,7 +4,7 @@ import numpy as np
 from collections import defaultdict
 
 from minigrid.core.actions import Actions
-from minigrid.core.constants import COLOR_NAMES
+from minigrid.core.constants import COLOR_NAMES, TILE_PIXELS
 from minigrid.core.grid import Grid
 from minigrid.core.mission import MissionSpace
 from minigrid.core.world_object import Ball, Key, Box, Door
@@ -42,7 +42,7 @@ class CountingEnv(MiniGridEnv):
 
     @staticmethod
     def _gen_mission():
-        return 'Go through the green door if there are an even number of objects of the same color as the object in the room, otherwise go through the red door'
+        return 'Pass through the green door if the number of previously seen items matching the color of the object in the room is even. If not, choose the red door.'
     
     def _gen_normal_room(self):
         # Fix the player's start position and orientation
@@ -84,7 +84,7 @@ class CountingEnv(MiniGridEnv):
         self.grid.horz_wall(0, 0)
 
     def _gen_grid(self, width, height):
-        self.mission = 'Go through the green door if there are an even number of objects of the same color as the object in the room, otherwise go through the red door'
+        self.mission = 'Pass through the green door if the number of previously seen items matching the color of the object in the room is even. If not, choose the red door.'
         self.grid = Grid(width, height)
 
         # Generate the surrounding walls
@@ -140,7 +140,7 @@ class CountingEnv(MiniGridEnv):
         return self.get_pov_render(tile_size=self.tile_size)
     
 def main():
-    env = CountingEnv(length=10, screen_size=800, render_mode="human")
+    env = CountingEnv(length=10, tile_size=84, screen_size=800, render_mode="human")
 
     # enable manual control for testing
     manual_control = ManualControl(env)

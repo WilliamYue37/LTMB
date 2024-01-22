@@ -3,7 +3,7 @@ import pickle
 import argparse
 import ltmb
 import random
-from ltmb.policies import Policy, ExpertHallwayPolicy, ExpertMimicPolicy, ExpertCountingPolicy
+from ltmb.policies import Policy, ExpertHallwayPolicy, ExpertOrderingPolicy, ExpertCountingPolicy
 from typing import Type
 
 def record_video(env_name: str, expert: Type[Policy], filename: str, options: dict = {}):
@@ -50,7 +50,7 @@ def main():
     parser = argparse.ArgumentParser(description='Collect and save trajectories from a Gym environment.')
     parser.add_argument('--filename', type=str, required=True, help='Output file name for saved trajectories. (*.pkl)')
     parser.add_argument('--runs', type=int, default=2, help='Number of trajectories to collect.')
-    parser.add_argument('--env', type=str, required=True, choices=['LTMB-Hallway-v0', 'LTMB-Mimic-v0', 'LTMB-Counting-v0'], help='Gym environment name.')
+    parser.add_argument('--env', type=str, required=True, choices=['LTMB-Hallway-v0', 'LTMB-Ordering-v0', 'LTMB-Counting-v0'], help='Gym environment name.')
     parser.add_argument('--seed', type=int, default=0, help='Random seed.')
     parser.add_argument('--length', type=int, default=10, help='Length of the task.')
     parser.add_argument('--test_freq', type=float, default=0.3, help='Frequency of test rooms for Counting task.')
@@ -63,8 +63,8 @@ def main():
     expert = None
     if args.env == 'LTMB-Hallway-v0':
         expert = ExpertHallwayPolicy
-    elif args.env == 'LTMB-Mimic-v0':
-        expert = ExpertMimicPolicy
+    elif args.env == 'LTMB-Ordering-v0':
+        expert = ExpertOrderingPolicy
     elif args.env == 'LTMB-Counting-v0':
         expert = ExpertCountingPolicy
         options['test_freq'] = args.test_freq

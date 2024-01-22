@@ -140,7 +140,7 @@ class CountingEnv(MiniGridEnv):
         return self.get_pov_render(tile_size=self.tile_size)
     
 def main():
-    env = CountingEnv(length=10, tile_size=84, screen_size=800, render_mode="human")
+    env = CountingEnv(length=10, tile_size=TILE_PIXELS, screen_size=800, render_mode="human")
 
     # enable manual control for testing
     manual_control = ManualControl(env)

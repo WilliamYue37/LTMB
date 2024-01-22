@@ -6,8 +6,8 @@ register(
 )
 
 register(
-     id='LTMB-Mimic-v0',
-     entry_point="ltmb.envs:MimicEnv",
+     id='LTMB-Ordering-v0',
+     entry_point="ltmb.envs:OrderingEnv",
 )
 
 register(

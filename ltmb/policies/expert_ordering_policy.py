@@ -24,16 +24,25 @@ class ExpertOrderingPolicy(Policy):
             self.permutation.append((object, color))
         else:
             choices = []
-            for i in [2, 4]:
-                object, color = IDX_TO_OBJECT[obs[i, 3, OBJECT_IDX]], IDX_TO_COLOR[obs[i, 3, COLOR_IDX]]
+            for pos in [(2, 3), (4, 3), (3, 2), (3, 4)]:
+                object, color = IDX_TO_OBJECT[obs[pos[0], pos[1], OBJECT_IDX]], IDX_TO_COLOR[obs[pos[0], pos[1], COLOR_IDX]]
                 choices.append((object, color))
-            left_idx, right_idx = self.permutation.index(choices[0]), self.permutation.index(choices[1])
-            self.memory_associations.append((2 * self.timestep, 2 * left_idx)) # we need to pay attention the left object
-            self.memory_associations.append((2 * self.timestep, 2 * right_idx)) # we need to pay attention the right object
-            if left_idx < right_idx:
+
+            min_index = min(self.permutation.index(choice) for choice in choices)
+            for i in range(4):
+                idx = self.permutation.index(choices[i])
+                self.memory_associations.append((2 * self.timestep, 2 * idx)) # we need to pay attention to the object
+            
+            action = None
+            if self.permutation.index(choices[0]) == min_index:
                 action = Actions.left
-            else:
+            elif self.permutation.index(choices[1]) == min_index:
                 action = Actions.right
+            elif self.permutation.index(choices[2]) == min_index:
+                action = Actions.forward
+            elif self.permutation.index(choices[3]) == min_index:
+                action = Actions.toggle
+            assert action is not None
 
         self.timestep += 1
         return action

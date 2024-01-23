@@ -45,9 +45,10 @@ class OrderingEnv(MiniGridEnv):
             self.grid.set(3, 3, object(color))
         else:
             self.grid.set(3, 3, None)
-            self.choices = random.sample(self.permutation, 2)
-            self.grid.set(2, 3, self.choices[0][0](self.choices[0][1]))
-            self.grid.set(4, 3, self.choices[1][0](self.choices[1][1]))
+            self.choices = random.sample(self.permutation, 4)
+            object_positions = [(2, 3), (4, 3), (3, 2), (3, 4)]
+            for i in range(4):
+                self.grid.set(*object_positions[i], self.choices[i][0](self.choices[i][1]))
 
     def _gen_grid(self, width, height):
         self.mission = 'Memorize the order of the first 18 colored objects to appear. When shown two objects, select the one that appeared first.'
@@ -67,10 +68,22 @@ class OrderingEnv(MiniGridEnv):
         return super().reset(**kwargs)
 
     def step(self, action):
-        incorrect_action = False
+        incorrect_action_chosen = False
         if self.timestep >= 18:
-            correct_action = Actions.left if self.permutation.index(self.choices[0]) < self.permutation.index(self.choices[1]) else Actions.right
-            incorrect_action = action != correct_action
+            min_index = min(self.permutation.index(choice) for choice in self.choices)
+
+            correct_action = None
+            if self.permutation.index(self.choices[0]) == min_index:
+                correct_action = Actions.left
+            elif self.permutation.index(self.choices[1]) == min_index:
+                correct_action = Actions.right
+            elif self.permutation.index(self.choices[2]) == min_index:
+                correct_action = Actions.forward
+            elif self.permutation.index(self.choices[3]) == min_index:
+                correct_action = Actions.toggle
+            assert correct_action is not None
+
+            incorrect_action_chosen = action != correct_action
 
         # generate a new room
         self.timestep += 1
@@ -79,7 +92,7 @@ class OrderingEnv(MiniGridEnv):
         # Don't allow moving or picking up objects
         action = Actions.drop
         obs, reward, terminated, truncated, info = super().step(action)
-        if incorrect_action:
+        if incorrect_action_chosen:
             reward = -1
             terminated = True
             info['success'] = False

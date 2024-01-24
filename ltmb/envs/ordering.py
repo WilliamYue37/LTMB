@@ -37,7 +37,7 @@ class OrderingEnv(MiniGridEnv):
 
     @staticmethod
     def _gen_mission():
-        return 'Memorize the order of the first 18 colored objects to appear. When shown two objects, select the one that appeared first.'
+        return 'Memorize the sequence of the first 18 colored objects presented. When given a choice between two objects, select the one that appeared earlier in the sequence.'
     
     def _gen_new_room(self):
         if self.timestep < 18:
@@ -50,7 +50,7 @@ class OrderingEnv(MiniGridEnv):
             self.grid.set(4, 3, self.choices[1][0](self.choices[1][1]))
 
     def _gen_grid(self, width, height):
-        self.mission = 'Memorize the order of the first 18 colored objects to appear. When shown two objects, select the one that appeared first.'
+        self.mission = 'Memorize the sequence of the first 18 colored objects presented. When given a choice between two objects, select the one that appeared earlier in the sequence.'
         self.grid = Grid(width, height)
 
         # Fix the player's start position and orientation

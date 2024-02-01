@@ -33,6 +33,8 @@ setup(
     entry_points={
         'console_scripts': [
             'play_hallway=ltmb.envs.hallway:main',
+            'play_ordering=ltmb.envs.ordering:main',
+            'play_counting=ltmb.envs.counting:main',
         ],
     },
 )
